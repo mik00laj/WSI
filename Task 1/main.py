@@ -27,30 +27,27 @@ def gradient_descent(initial_x, initial_y, learning_rate, num_iterations, tolera
 
     return x, x_history, y, y_history
 # Set initial values
-# Find II MINIMUM
-initial_x = 0
-initial_y = -1
+
 learning_rate = 0.1
 num_iterations = 1000
 tolerance = 1e-10
+
+# Find II MINIMUM
+initial_x = 0
+initial_y = -1
+
 #FIND IV MINIMUM
 # initial_x = 0
 # initial_y = 1
-# learning_rate = 0.1
-# num_iterations = 1000
-# tolerance = 1e-10
+
 #FIND I MAXIMUM
 # initial_x = 0
 # initial_y = -1
-# learning_rate = -0.1
-# num_iterations = 1000
-# tolerance = 1e-10
+
 #FIND III MAXIMUM
 # initial_x = 0
 # initial_y = 1
-# learning_rate = -0.1
-# num_iterations = 1000
-# tolerance = 1e-10
+
 
 x, x_history, y, y_history = gradient_descent(initial_x, initial_y, learning_rate, num_iterations, tolerance)
 print("Local minimum: {:.12f}".format(f(x, y)))
@@ -63,12 +60,12 @@ print("Number of Iterations:", len(x_history))
 # results_df = pd.DataFrame(
 #     columns=['Learning Rate', 'Initial X', 'Initial Y','Iterations', 'Minimum'])
 #
-# # Parametry
+
 # learning_rates = [0.1]
 # for lr in learning_rates:
 #     for _ in range(20):
 #         initial_x = np.random.uniform(-2, 2)
-#         initial_y = np.random.uniform(-2,-2)
+#         initial_y = np.random.uniform(-2,2)
 #
 #         x, x_history, y, y_history = gradient_descent(initial_x, initial_y, lr, 1000, 1e-10)
 #         minimum = f(x, y)
@@ -81,19 +78,19 @@ print("Number of Iterations:", len(x_history))
 #             'Iterations': len(x_history),
 #             'Minimum': minimum
 #         }, ignore_index=True)
-
+#
 # print(results_df)
 
 # Find  MAXIMUM
 # results_df = pd.DataFrame(
 #     columns=['Learning Rate', 'Initial X', 'Initial Y','Iterations', 'Maximum'])
 #
-# # Parametry
+
 # learning_rates = [0.1]
 # for lr in learning_rates:
 #     for _ in range(20):
 #         initial_x = np.random.uniform(-2, 2)
-#         initial_y = np.random.uniform(-2,-2)
+#         initial_y = np.random.uniform(-2,2)
 #
 #         x, x_history, y, y_history = gradient_descent(initial_x, initial_y, -lr, 1000, 1e-10)
 #         maximum = f(x, y)
@@ -106,7 +103,7 @@ print("Number of Iterations:", len(x_history))
 #             'Iterations': len(x_history),
 #             'Maximum': maximum
 #         }, ignore_index=True)
-
+#
 # print(results_df)
 
 # JAK WARTOŚĆ KROKU URZĄCEGO WPŁYWA NA PROCES OPTYMALIZACJI
@@ -115,12 +112,12 @@ print("Number of Iterations:", len(x_history))
 # Find  MINIMUM
 # results_df = pd.DataFrame(
 #     columns=['Learning Rate', 'Initial X', 'Initial Y','Iterations', 'Minimum'])
-
-# Parametry
+#
+#
 # learning_rates = [0.0001,0.001,0.01,0.1,1,10,100]
 # for lr in learning_rates:
 #         initial_x = 0
-#         initial_y = -1
+#         initial_y = 1
 #
 #         x, x_history, y, y_history = gradient_descent(initial_x, initial_y, lr, 1000, 1e-10)
 #         minimum = f(x, y)
@@ -140,11 +137,11 @@ print("Number of Iterations:", len(x_history))
 # results_df = pd.DataFrame(
 #     columns=['Learning Rate', 'Initial X', 'Initial Y','Iterations', 'Maximum'])
 # #
-# # Parametry
+#
 # learning_rates = [0.0001,0.001,0.01,0.1,1,10,100]
 # for lr in learning_rates:
 #         initial_x = 0
-#         initial_y = -1
+#         initial_y = S1
 #
 #         x, x_history, y, y_history = gradient_descent(initial_x, initial_y, -lr, 1000, 1e-10)
 #         maximum = f(x, y)
