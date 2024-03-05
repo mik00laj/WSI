@@ -3,11 +3,11 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 def f(x, y):
-    return (x * y) / np.exp(x**2 - 0.5*x + y**2)
+    return (9*x * y) / np.exp(x**2 + 0.5*x + y**2)
 
 def gradient(x, y):
-    df_dx = (np.exp(-x**2 - y**2 + 0.5*x)) * (1 + 0.5*x - 2*x**2) * y
-    df_dy = (-np.exp(-x**2 - y**2 + 0.5*x)) * (-1 + 2*y**2) * x
+    df_dx = (np.exp(-x**2 - y**2 - 0.5*x)) * 9*(1 - 0.5*x - 2*x**2) * y
+    df_dy = (np.exp(-x**2 - y**2 - 0.5*x)) * 9*(x - 2*x*y**2)
     return df_dx, df_dy
 
 def gradient_descent(initial_x, initial_y, learning_rate, num_iterations, tolerance):
@@ -28,11 +28,11 @@ def gradient_descent(initial_x, initial_y, learning_rate, num_iterations, tolera
     return x, x_history, y, y_history
 # Set initial values
 # Find II MINIMUM
-# initial_x = 0
-# initial_y = -1
-# learning_rate = 0.1
-# num_iterations = 1000
-# tolerance = 1e-10
+initial_x = 0
+initial_y = -1
+learning_rate = 0.1
+num_iterations = 1000
+tolerance = 1e-10
 #FIND IV MINIMUM
 # initial_x = 0
 # initial_y = 1
@@ -52,10 +52,10 @@ def gradient_descent(initial_x, initial_y, learning_rate, num_iterations, tolera
 # num_iterations = 1000
 # tolerance = 1e-10
 
-# x, x_history, y, y_history = gradient_descent(initial_x, initial_y, learning_rate, num_iterations, tolerance)
-# print("Local minimum: {:.12f}".format(f(x, y)))
-# print("Final Point: x = {:.12f}, y = {:.12f}".format(x, y))
-# print("Number of Iterations:", len(x_history))
+x, x_history, y, y_history = gradient_descent(initial_x, initial_y, learning_rate, num_iterations, tolerance)
+print("Local minimum: {:.12f}".format(f(x, y)))
+print("Final Point: x = {:.12f}, y = {:.12f}".format(x, y))
+print("Number of Iterations:", len(x_history))
 
 # JAK PUNKT STARTOWY WPŁYWA NA WYNIK
 
@@ -113,28 +113,28 @@ def gradient_descent(initial_x, initial_y, learning_rate, num_iterations, tolera
 
 
 # Find  MINIMUM
-results_df = pd.DataFrame(
-    columns=['Learning Rate', 'Initial X', 'Initial Y','Iterations', 'Minimum'])
+# results_df = pd.DataFrame(
+#     columns=['Learning Rate', 'Initial X', 'Initial Y','Iterations', 'Minimum'])
 
 # Parametry
-learning_rates = [0.0001,0.001,0.01,0.1,1,10,100]
-for lr in learning_rates:
-        initial_x = 0
-        initial_y = -1
-
-        x, x_history, y, y_history = gradient_descent(initial_x, initial_y, lr, 1000, 1e-10)
-        minimum = f(x, y)
-
-        # Dodawanie wyników do ramki danych
-        results_df = results_df.append({
-            'Learning Rate': lr,
-            'Initial X': initial_x,
-            'Initial Y': initial_y,
-            'Iterations': len(x_history),
-            'Minimum': minimum
-        }, ignore_index=True)
-
-print(results_df)
+# learning_rates = [0.0001,0.001,0.01,0.1,1,10,100]
+# for lr in learning_rates:
+#         initial_x = 0
+#         initial_y = -1
+#
+#         x, x_history, y, y_history = gradient_descent(initial_x, initial_y, lr, 1000, 1e-10)
+#         minimum = f(x, y)
+#
+#         # Dodawanie wyników do ramki danych
+#         results_df = results_df.append({
+#             'Learning Rate': lr,
+#             'Initial X': initial_x,
+#             'Initial Y': initial_y,
+#             'Iterations': len(x_history),
+#             'Minimum': minimum
+#         }, ignore_index=True)
+#
+# print(results_df)
 
 # # Find  MAXIMUM
 # results_df = pd.DataFrame(
