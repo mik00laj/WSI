@@ -2,105 +2,97 @@ import numpy as np
 import random
 import copy
 from matplotlib import pyplot as plt
-from typing import List
-from dataclasses import dataclass
+from typing import Tuple
 
-@dataclass
-class Entity:
-    x: List[float]
-    s: List[float]
-
-def evolution_es(f, x0: List[float], mu: int, lambda_: int, s: float, stop: int):
-    pop = list()
+def evolution_es(f, x0: np.ndarray, MU: int, LAMBDA: int, SIGMA: float, ITERATIONS: int) -> Tuple[np.ndarray, float]:
+    population = list()
     if x0 is None:
-        for i in range(mu):
-            x0 = np.random.uniform(-100.0, 100.0, size=2)  # Inicjalizacja populacji losowymi osobnikami
-            pop.append(Entity(x0, [s] * len(x0)))
+        for i in range(MU):
+            x0 = np.random.uniform(-100.0, 100.0, size=2)  # Initializing population with random individuals
+            population.append((x0, np.array([SIGMA] * len(x0))))
     else:
-        pop = [Entity(x0, [s] * len(x0))] * mu
+        population = [(x0, np.array([SIGMA] * len(x0)))] * MU
 
-    score = list(map(lambda e: f(*e.x), pop))  # Obliczenie wartości funkcji celu dla każdego osobnika
-    best_ever = min(zip(pop, score), key=lambda a: a[1])  # Znalezienie najlepszego osobnika w populacji
+    score = [f(*x) for x, _ in population]  # Calculating the objective function value for each individual
+    best_ever = min(zip(population, score), key=lambda a: a[1])  # Finding the best individual in the populationulation
 
-    min_ypoints = [0.0] * stop
-    for epoch in range(stop):
-        # Selekcja rodziców: Reprodukcja turniejowa
-        parents = [tournament_selection(pop) for _ in range(lambda_)]
+    min_ypoints = [0.0] * ITERATIONS
+    for epoch in range(ITERATIONS):
+        # Parent selection: Tournament reproduction
+        parents = [tournament_selection(population) for _ in range(LAMBDA)]
 
-        # Krzyżowanie i mutacja
-        children = [crossover(f, parents) for _ in range(lambda_)]
-        children = list(map(lambda e: mutation(f, e), children))
+        # Crossover and MUtation
+        children = [crossover(f, parents) for _ in range(LAMBDA)]
+        children = [MUtation(f, e) for e in children]
 
-        # Wybór najlepszych osobników spośród populacji i potomstwa
+        # Selecting the best individuals from the populationulation and offspring
         best_epoch = min(zip(children, score), key=lambda a: a[1])
         if best_epoch[1] < best_ever[1]:
             best_ever = copy.deepcopy(best_epoch)
 
-        # Połączenie populacji i potomstwa
-        pop += children
+        # Combining populationulation and offspring
+        population += children
 
-        # Obliczenie wartości funkcji celu dla nowej populacji
-        score = list(map(lambda e: f(*e.x), pop))
+        # Calculating the objective function value for the new populationulation
+        score = [f(*x) for x, _ in population]
 
-        # Sortowanie populacji na podstawie wartości funkcji celu i wybór najlepszych osobników
-        pop = [x for _, x in sorted(zip(score, pop), key=lambda pair: pair[0])]
-        pop = pop[:mu]
+        # Sorting the populationulation based on the objective function value and selecting the best individuals
+        population = [x for _, x in sorted(zip(score, population), key=lambda pair: pair[0])]
+        population = population[:MU]
 
-        # Zapisanie wartości funkcji celu najlepszego osobnika w danym pokoleniu
-        min_ypoints[epoch] = f(*pop[0].x)
+        # Saving the objective function value of the best individual in the current generation
+        min_ypoints[epoch] = f(*population[0])
         print(f"{epoch}: {min_ypoints[epoch]}")
 
-    # Wykres wartości funkcji celu w kolejnych pokoleniach
-    xpoints = list(range(stop))
-    plt.plot(xpoints, min_ypoints, label="mu + lambda")
+    # Plotting the objective function value in successive generations
+    xpoints = list(range(ITERATIONS))
+    plt.plot(xpoints, min_ypoints, label="MU + lambda")
     plt.legend()
 
-    # Zwrócenie najlepszego znalezionego rozwiązania i jego wartości funkcji celu
-    return [best_ever[0].x, f(*best_ever[0].x)]
+    # Returning the best found solution and its objective function value
+    return best_ever[0][0], f(*best_ever[0][0])
 
-# Funkcja selekcji turniejowej
-def tournament_selection(population: List[Entity]) -> Entity:
-    tournament_size = 2  # Rozmiar turnieju
-    tournament_contestants = random.choices(population, k=tournament_size)  # Losowy wybór uczestników turnieju
-    return min(tournament_contestants, key=lambda x: f(*x.x))  # Zwrócenie zwycięzcy turnieju
+# Tournament selection function
+def tournament_selection(populationulation: list) -> Tuple[np.ndarray, np.ndarray]:
+    tournament_size = 2  # Tournament size
+    tournament_contestants = random.choices(populationulation, k=tournament_size)  # Random selection of tournament participants
+    return min(tournament_contestants, key=lambda x: f(*x[0]))  # Returning the tournament winner
 
-# Funkcja krzyżowania
-def crossover(f, parents: List[Entity]) -> Entity:
-    # Tutaj wykorzystywany jest losowy wybór rodziców do krzyżowania
+# Crossover function
+def crossover(f, parents: list):
     a = random.uniform(0, 1)
-    p1 = random.choice(parents)
-    p2 = random.choice(parents)
+    p1, p2 = random.sample(parents, 2)  # Selecting two random parents
 
-    x = [0.0] * len(p1.x)
-    s = [0.0] * len(p1.x)
-    for i in range(len(p1.x)):
-        x[i] = a * p1.x[i] + (1 - a) * p2.x[i]  # Interpolacja wartości współrzędnych
-        s[i] = a * p1.s[i] + (1 - a) * p2.s[i]  # Interpolacja wartości sigma
-    return Entity(x, s)
+    x1, SIGMA1 = p1
+    x2, SIGMA2 = p2
 
-# Funkcja mutacji
-def mutation(f, parent: Entity) -> Entity:
-    x = [0.0] * len(parent.x)
-    s = [0.0] * len(parent.x)
+    x = a * x1 + (1 - a) * x2  # Interpolating coordinate values
+    SIGMA = a * SIGMA1 + (1 - a) * SIGMA2  # Interpolating SIGMA values
+    return x, SIGMA
+
+
+# MUtation function
+def MUtation(f, parent: Tuple[np.ndarray, np.ndarray]):
+    x, SIGMA = parent
 
     n = float(len(x))
     tau = 1 / np.sqrt(2.0 * n)
     taup = 1 / np.sqrt(2.0 * np.sqrt(n))
 
     a = random.normalvariate(0.0, 1.0)
-    for i in range(len(parent.x)):
+    for i in range(len(x)):
         b = random.normalvariate(0.0, 1.0)
-        s[i] = parent.s[i] * np.exp(taup * a + tau * b)
-        x[i] = parent.x[i] + s[i] * random.normalvariate(0.0, 1.0)
+        SIGMA[i] = SIGMA[i] * np.exp(taup * a + tau * b)
+        x[i] = x[i] + SIGMA[i] * random.normalvariate(0.0, 1.0)
 
-    return Entity(x, s)
+    return x, SIGMA
 
-# Funkcja celu f(x, y)
+# Objective function f(x, y)
 def f(x, y):
     return (9 * x * y) / np.exp(x ** 2 + 0.5 * x + y ** 2)
 
-# Uruchomienie algorytmu ES
-best_solution, best_fitness = evolution_es(f, None, mu=10, lambda_=30, s=0.1, stop=100)
+# Running the ES algorithm
+best_solution, best_fitness = evolution_es(f, None, MU=10, LAMBDA=100, SIGMA=0.1, ITERATIONS=1000)
 
-print("Najlepsze rozwiązanie:", best_solution)
-print("Wartość funkcji celu w najlepszym rozwiązaniu:", best_fitness)
+print("Best solution:", best_solution)
+print("Objective function value at the best solution:", best_fitness)
