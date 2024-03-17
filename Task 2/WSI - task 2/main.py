@@ -4,77 +4,76 @@ import copy
 from matplotlib import pyplot as plt
 from typing import Tuple
 
-def evolution_es(f, x0: np.ndarray, MU: int, LAMBDA: int, SIGMA: float, ITERATIONS: int) -> Tuple[np.ndarray, float]:
-    population = list()
-    if x0 is None:
-        for i in range(MU):
-            x0 = np.random.uniform(-100.0, 100.0, size=2)  # Initializing population with random individuals
-            population.append((x0, np.array([SIGMA] * len(x0))))
-    else:
-        population = [(x0, np.array([SIGMA] * len(x0)))] * MU
+MU = 1
+LAMBDA = 1
+SIGMA = 0.1
+ITERATIONS = 200
 
-    score = [f(*x) for x, _ in population]  # Calculating the objective function value for each individual
-    best_ever = min(zip(population, score), key=lambda a: a[1])  # Finding the best individual in the populationulation
+def f(x, y):
+    return (9 * x * y) / np.exp(x ** 2 + 0.5 * x + y ** 2)
+
+def evolution_es(f, MU: int, LAMBDA: int, SIGMA: float, ITERATIONS: int) -> Tuple[np.ndarray, float, list]:
+    population = list()
+    x_history = []
+    y_history = []
+    f_history = []
+
+    for i in range(MU):
+        x = np.random.uniform(-3.0, 3.0)
+        y = np.random.uniform(-3.0, 3.0)
+        population.append(([x, y], np.array([SIGMA] * 2)))
+        x_history.append(x)
+        y_history.append(y)
+
+    score = [f(x, y) for [x, y], _ in population]
+    best_ever = min(zip(population, score), key=lambda a: a[1])
 
     min_ypoints = [0.0] * ITERATIONS
     for epoch in range(ITERATIONS):
-        # Parent selection: Tournament reproduction
         parents = [tournament_selection(population) for _ in range(LAMBDA)]
-
-        # Crossover and MUtation
         children = [crossover(f, parents) for _ in range(LAMBDA)]
-        children = [MUtation(f, e) for e in children]
+        children = [mutation(f, e) for e in children]
 
-        # Selecting the best individuals from the populationulation and offspring
         best_epoch = min(zip(children, score), key=lambda a: a[1])
         if best_epoch[1] < best_ever[1]:
             best_ever = copy.deepcopy(best_epoch)
 
-        # Combining populationulation and offspring
         population += children
+        score = [f(x, y) for [x, y], _ in population]
 
-        # Calculating the objective function value for the new populationulation
-        score = [f(*x) for x, _ in population]
-
-        # Sorting the populationulation based on the objective function value and selecting the best individuals
-        population = [x for _, x in sorted(zip(score, population), key=lambda pair: pair[0])]
+        population = [indiv for _, indiv in sorted(zip(score, population), key=lambda pair: pair[0])]
         population = population[:MU]
 
-        # Saving the objective function value of the best individual in the current generation
-        min_ypoints[epoch] = f(*population[0])
-        print(f"{epoch}: {min_ypoints[epoch]}")
+        min_ypoints[epoch] = f(*population[0][0])
+        f_history.append(min_ypoints[epoch])
+        x_history.append(population[0][0][0])
+        y_history.append(population[0][0][1])
+        print("Pokolenie: ", epoch, "f(x,y)= ", min_ypoints[epoch])
 
-    # Plotting the objective function value in successive generations
-    xpoints = list(range(ITERATIONS))
-    plt.plot(xpoints, min_ypoints, label="MU + lambda")
-    plt.legend()
+    return best_ever[0][0], f(*best_ever[0][0]), population, f_history, x_history, y_history
 
-    # Returning the best found solution and its objective function value
-    return best_ever[0][0], f(*best_ever[0][0])
+def tournament_selection(population: list) -> Tuple[np.ndarray, np.ndarray]:
+    tournament_size = 2
+    tournament_contestants = random.choices(population, k=tournament_size)
+    return min(tournament_contestants, key=lambda x: f(*x[0]))
 
-# Tournament selection function
-def tournament_selection(populationulation: list) -> Tuple[np.ndarray, np.ndarray]:
-    tournament_size = 2  # Tournament size
-    tournament_contestants = random.choices(populationulation, k=tournament_size)  # Random selection of tournament participants
-    return min(tournament_contestants, key=lambda x: f(*x[0]))  # Returning the tournament winner
-
-# Crossover function
+#Krzyżowanie uśredniające w wariancie roszerzonym
 def crossover(f, parents: list):
     a = random.uniform(0, 1)
-    p1, p2 = random.sample(parents, 2)  # Selecting two random parents
+    p1 = random.choice(parents)  # Losowy wybór pierwszego rodzica
+    p2 = random.choice(parents)  # Losowy wybór drugiego rodzica
 
-    x1, SIGMA1 = p1
-    x2, SIGMA2 = p2
+    p1_x, p1_sigma = p1
+    p2_x, p2_sigma = p2
 
-    x = a * x1 + (1 - a) * x2  # Interpolating coordinate values
-    SIGMA = a * SIGMA1 + (1 - a) * SIGMA2  # Interpolating SIGMA values
-    return x, SIGMA
+    crossover_child_x = [a * p1_x[i] + (1 - a) * p2_x[i] for i in range(len(p1_x))]
+    crossover_child_sigma = [a * p1_sigma[i] + (1 - a) * p2_sigma[i] for i in range(len(p1_sigma))]
 
+    return [crossover_child_x, crossover_child_sigma]
 
-# MUtation function
-def MUtation(f, parent: Tuple[np.ndarray, np.ndarray]):
+# Mutacja Gaussowska
+def mutation(f, parent: Tuple[np.ndarray, np.ndarray]):
     x, SIGMA = parent
-
     n = float(len(x))
     tau = 1 / np.sqrt(2.0 * n)
     taup = 1 / np.sqrt(2.0 * np.sqrt(n))
@@ -84,15 +83,32 @@ def MUtation(f, parent: Tuple[np.ndarray, np.ndarray]):
         b = random.normalvariate(0.0, 1.0)
         SIGMA[i] = SIGMA[i] * np.exp(taup * a + tau * b)
         x[i] = x[i] + SIGMA[i] * random.normalvariate(0.0, 1.0)
-
     return x, SIGMA
 
-# Objective function f(x, y)
-def f(x, y):
-    return (9 * x * y) / np.exp(x ** 2 + 0.5 * x + y ** 2)
-
-# Running the ES algorithm
-best_solution, best_fitness = evolution_es(f, None, MU=10, LAMBDA=100, SIGMA=0.1, ITERATIONS=1000)
+best_solution, best_fitness, population, f_history, x_history, y_history = evolution_es(f, MU, LAMBDA, SIGMA, ITERATIONS)
 
 print("Best solution:", best_solution)
 print("Objective function value at the best solution:", best_fitness)
+
+# Wykres jakości punktów populacji
+xpoints = list(range(ITERATIONS))
+plt.scatter(xpoints, f_history, color='red', label='f_history')
+plt.xlabel('Iterations')
+plt.ylabel('Value of Function')
+plt.title('Evolution Alghoritm')
+plt.show()
+
+# Create a range of x and y values for plotting
+x_vals = np.linspace(-3.0, 3, 100)
+y_vals = np.linspace(-3.0, 3, 100)
+X, Y = np.meshgrid(x_vals, y_vals)
+Z = f(X, Y)
+# Plot Contour Plot
+plt.figure(figsize=(12, 10))
+contour = plt.contour(X, Y, Z, levels=20, cmap='viridis')
+plt.scatter(x_history, y_history, c='red')
+plt.xlabel('x')
+plt.ylabel('y')
+plt.title('Evolution Alghoritm')
+plt.colorbar(contour)
+plt.show()
