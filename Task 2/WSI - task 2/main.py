@@ -90,6 +90,7 @@ best_solution, best_fitness, population, f_history, x_history, y_history = evolu
 print("Best solution:", best_solution)
 print("Objective function value at the best solution:", best_fitness)
 
+
 # Wykres jakości punktów populacji
 xpoints = list(range(ITERATIONS))
 plt.scatter(xpoints, f_history, color='red', label='f_history')

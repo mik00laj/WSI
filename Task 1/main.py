@@ -157,8 +157,6 @@ print("Number of Iterations:", len(x_history))
 #
 # print(results_df)
 
-
-
 # Create a range of x and y values for plotting
 x_vals = np.linspace(-3.0, 3, 100)
 y_vals = np.linspace(-3.0, 3, 100)
