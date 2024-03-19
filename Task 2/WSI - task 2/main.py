@@ -22,7 +22,7 @@ def evolution_es_min(f, MU: int, LAMBDA: int, SIGMA: float, ITERATIONS: int) -> 
 
     for i in range(MU):
         x = np.random.uniform(-20.0, 20.0)
-        y = np.random.uniform(-200.0, 20.0)
+        y = np.random.uniform(-20.0, 20.0)
         population.append(([x, y], np.array([SIGMA] * 2)))
 
     score = [f(x, y) for [x, y], _ in population]
@@ -57,7 +57,7 @@ def evolution_es_max(f, MU: int, LAMBDA: int, SIGMA: float, ITERATIONS: int) -> 
     x_history = []
     y_history = []
     f_history = []
-
+    # Tworzenie polpulacji początkowej
     for i in range(MU):
         x = np.random.uniform(-20.0, 20.0)
         y = np.random.uniform(-20.0, 20.0)
@@ -128,9 +128,9 @@ def mutation(f, parent: Tuple[np.ndarray, np.ndarray]):
     return x, SIGMA
 
 # FIND MINIMUM
-best_solution, best_fitness, population, f_history, x_history, y_history = evolution_es_min(f, MU, LAMBDA, SIGMA, ITERATIONS)
+# best_solution, best_fitness, population, f_history, x_history, y_history = evolution_es_min(f, MU, LAMBDA, SIGMA, ITERATIONS)
 # FIND MAXIMUM
-# best_solution, best_fitness, population, f_history, x_history, y_history = evolution_es_max(neg_f, MU, LAMBDA, SIGMA, ITERATIONS)
+best_solution, best_fitness, population, f_history, x_history, y_history = evolution_es_max(neg_f, MU, LAMBDA, SIGMA, ITERATIONS)
 
 print("Best solution:", best_solution)
 print("Objective function value at the best solution:", best_fitness)

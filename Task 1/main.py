@@ -33,8 +33,8 @@ num_iterations = 1000
 tolerance = 1e-10
 
 # Find II MINIMUM
-initial_x = 0
-initial_y = -1
+initial_x = 10
+initial_y = 10
 
 #FIND IV MINIMUM
 # initial_x = 0
