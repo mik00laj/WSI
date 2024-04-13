@@ -130,11 +130,15 @@ def test_agent(depths, n_games=1000, vector_length=15): # Funkcja testowa
         for _ in range(n_games):
             vector = [random.randint(-10, 10) for _ in range(vector_length)]
             minmax_agent = MinMaxAgent(max_depth=depth)
-            # second_agent = GreedyAgent()  # MinMaxAgent vs GreedyAgent
+            # second_agent = RandomAgent()  # MinMaxAgent vs RandomAgent
+            second_agent = GreedyAgent()  # MinMaxAgent vs GreedyAgent
             # second_agent = NinjaAgent()    # MinMaxAgent vs NinjaAgent
-            second_agent = MinMaxAgent(15) # MinMaxAgent vs MinMaxAgent(15)
+            # second_agent = MinMaxAgent(15) # MinMaxAgent vs MinMaxAgent(15)
             start_time = time.time()
-            run_game(vector, minmax_agent, second_agent)
+            if _ <= 500:
+                run_game(vector, minmax_agent, second_agent)
+            else:
+                run_game(vector, second_agent,minmax_agent)
             times.append(time.time() - start_time)
             scores.append(sum(minmax_agent.numbers))
 
@@ -160,98 +164,144 @@ def main():
 
 
 if __name__ == "__main__": # Uruchomienie funkcji testowej
-    # main()
+      # main()
     depths = [1, 2, 3, 15]
     results = test_agent(depths)
     for depth, result in results.items():
         print(f"Głębokość: {depth}, Średni czas: {result[0]:.8f}, Średnia suma punktów: {result[1]:.2f}, Odchylenie standardowe: {result[2]:.2f}")
 
-#
-# # HISTOGRAMY
-# def visualize_distribution(scores, depth):
-#     plt.figure(figsize=(10, 6))
-#     plt.hist(scores, bins=20, color='skyblue', edgecolor='black', alpha=0.7)
-#     plt.title(f"Distribution of Scores for MinMaxAgent (Depth {depth})")
-#     plt.xlabel("Scores")
-#     plt.ylabel("Frequency")
-#     plt.grid(True)
-#     plt.show()
-#
-#
-# # Test dla głębokości drzewa 2 # MinMaxAgent vs GreedyAgent
-# depth = 2
-# scores_depth_2 = []
-# for _ in range(1000):
-#     vector = [random.randint(-10, 10) for _ in range(15)]
-#     minmax_agent = MinMaxAgent(max_depth=depth)
-#     second_agent = GreedyAgent()
-#     run_game(vector, minmax_agent, second_agent)
-#     scores_depth_2.append(sum(minmax_agent.numbers))
-#
-# visualize_distribution(scores_depth_2, depth)
-#
-# # Test dla głębokości drzewa 15 # MinMaxAgent vs GreedyAgent
-# depth = 15
-# scores_depth_15 = []
-# for _ in range(1000):
-#     vector = [random.randint(-10, 10) for _ in range(15)]
-#     minmax_agent = MinMaxAgent(max_depth=depth)
-#     second_agent = GreedyAgent()
-#     run_game(vector, minmax_agent, second_agent)
-#     scores_depth_15.append(sum(minmax_agent.numbers))
-#
-#
-# visualize_distribution(scores_depth_15, depth)
-#
-#
-# # Test dla głębokości drzewa 2 # # MinMaxAgent vs NinjaAgent
-# depth = 2
-# scores_depth_2 = []
-# for _ in range(1000):
-#     vector = [random.randint(-10, 10) for _ in range(15)]
-#     minmax_agent = MinMaxAgent(max_depth=depth)
-#     second_agent = NinjaAgent()
-#     run_game(vector, minmax_agent, second_agent)
-#     scores_depth_2.append(sum(minmax_agent.numbers))
-#
-# visualize_distribution(scores_depth_2, depth)
-#
-#
-# # Test dla głębokości drzewa 15 # # MinMaxAgent vs NinjaAgent
-# depth = 15
-# scores_depth_15 = []
-#
-# for _ in range(1000):
-#     vector = [random.randint(-10, 10) for _ in range(15)]
-#     minmax_agent = MinMaxAgent(max_depth=depth)
-#     second_agent = NinjaAgent()
-#     run_game(vector, minmax_agent, second_agent)
-#     scores_depth_15.append(sum(minmax_agent.numbers))
-#
-# visualize_distribution(scores_depth_15, depth)
-#
-#
-# # Test dla głębokości drzewa 2 # MinMaxAgent vs MinMaxAgent(15)
-# depth = 2
-# scores_depth_2 = []
-# for _ in range(1000):
-#     vector = [random.randint(-10, 10) for _ in range(15)]
-#     minmax_agent = MinMaxAgent(max_depth=depth)
-#     second_agent = MinMaxAgent(15)
-#     run_game(vector, minmax_agent, second_agent)
-#     scores_depth_2.append(sum(minmax_agent.numbers))
-#
-# visualize_distribution(scores_depth_2, depth)
-#
-#
-# # Test dla głębokości drzewa 15 # MinMaxAgent vs MinMaxAgent(15)
-# depth = 15
-# scores_depth_15 = []
-# for _ in range(1000):
-#     vector = [random.randint(-10, 10) for _ in range(15)]
-#     minmax_agent = MinMaxAgent(max_depth=depth)
-#     second_agent = MinMaxAgent(15)
-#     run_game(vector, minmax_agent, second_agent)
-#     scores_depth_15.append(sum(minmax_agent.numbers))
-#
-# visualize_distribution(scores_depth_15, depth)
+# HISTOGRAMY
+def visualize_distribution(scores, depth):
+    plt.figure(figsize=(10, 6))
+    plt.hist(scores, bins=20, color='skyblue', edgecolor='black', alpha=0.7)
+    plt.title(f"Distribution of Scores for MinMaxAgent (Depth {depth})")
+    plt.xlabel("Scores")
+    plt.ylabel("Frequency")
+    plt.grid(True)
+    plt.show()
+
+
+# Test dla głębokości drzewa 2 # MinMaxAgent vs GreedyAgent
+depth = 2
+scores_depth_2 = []
+for _ in range(1000):
+    vector = [random.randint(-10, 10) for _ in range(15)]
+    minmax_agent = MinMaxAgent(max_depth=depth)
+    second_agent = GreedyAgent()
+    run_game(vector, minmax_agent, second_agent)
+    scores_depth_2.append(sum(minmax_agent.numbers))
+
+visualize_distribution(scores_depth_2, depth)
+
+# Test dla głębokości drzewa 15 # MinMaxAgent vs GreedyAgent
+depth = 15
+scores_depth_15 = []
+for _ in range(1000):
+    vector = [random.randint(-10, 10) for _ in range(15)]
+    minmax_agent = MinMaxAgent(max_depth=depth)
+    second_agent = GreedyAgent()
+    if _ <= 500:
+        run_game(vector, minmax_agent, second_agent)
+    else:
+        run_game(vector, second_agent, minmax_agent)
+    scores_depth_15.append(sum(minmax_agent.numbers))
+
+
+visualize_distribution(scores_depth_15, depth)
+
+
+# Test dla głębokości drzewa 2 # # MinMaxAgent vs NinjaAgent
+depth = 2
+scores_depth_2 = []
+for _ in range(1000):
+    vector = [random.randint(-10, 10) for _ in range(15)]
+    minmax_agent = MinMaxAgent(max_depth=depth)
+    second_agent = NinjaAgent()
+    if _ <= 500:
+        run_game(vector, minmax_agent, second_agent)
+    else:
+        run_game(vector, second_agent, minmax_agent)
+    scores_depth_2.append(sum(minmax_agent.numbers))
+
+visualize_distribution(scores_depth_2, depth)
+
+
+# Test dla głębokości drzewa 15 # # MinMaxAgent vs NinjaAgent
+depth = 15
+scores_depth_15 = []
+
+for _ in range(1000):
+    vector = [random.randint(-10, 10) for _ in range(15)]
+    minmax_agent = MinMaxAgent(max_depth=depth)
+    second_agent = NinjaAgent()
+    if _ <= 500:
+        run_game(vector, minmax_agent, second_agent)
+    else:
+        run_game(vector, second_agent, minmax_agent)
+    scores_depth_15.append(sum(minmax_agent.numbers))
+
+visualize_distribution(scores_depth_15, depth)
+
+
+# Test dla głębokości drzewa 2 # MinMaxAgent vs MinMaxAgent(15)
+depth = 2
+scores_depth_2 = []
+for _ in range(1000):
+    vector = [random.randint(-10, 10) for _ in range(15)]
+    minmax_agent = MinMaxAgent(max_depth=depth)
+    second_agent = MinMaxAgent(15)
+    if _ <= 500:
+        run_game(vector, minmax_agent, second_agent)
+    else:
+        run_game(vector, second_agent, minmax_agent)
+    scores_depth_2.append(sum(minmax_agent.numbers))
+
+visualize_distribution(scores_depth_2, depth)
+
+
+# Test dla głębokości drzewa 15 # MinMaxAgent vs MinMaxAgent(15)
+depth = 15
+scores_depth_15 = []
+for _ in range(1000):
+    vector = [random.randint(-10, 10) for _ in range(15)]
+    minmax_agent = MinMaxAgent(max_depth=depth)
+    second_agent = MinMaxAgent(15)
+    if _ <= 500:
+        run_game(vector, minmax_agent, second_agent)
+    else:
+        run_game(vector, second_agent, minmax_agent)
+    scores_depth_15.append(sum(minmax_agent.numbers))
+
+visualize_distribution(scores_depth_15, depth)
+
+
+## RANDOM AGENT:
+# Test dla głębokości drzewa 2 # MinMaxAgent vs RandomAgent
+depth = 2
+scores_depth_2 = []
+for _ in range(1000):
+    vector = [random.randint(-10, 10) for _ in range(15)]
+    minmax_agent = MinMaxAgent(max_depth=depth)
+    second_agent = RandomAgent()
+    if _ <= 500:
+        run_game(vector, minmax_agent, second_agent)
+    else:
+        run_game(vector, second_agent, minmax_agent)
+    scores_depth_2.append(sum(minmax_agent.numbers))
+
+visualize_distribution(scores_depth_2, depth)
+
+# Test dla głębokości drzewa 15 # MinMaxAgent vs RandomAgent
+depth = 15
+scores_depth_15 = []
+for _ in range(1000):
+    vector = [random.randint(-10, 10) for _ in range(15)]
+    minmax_agent = MinMaxAgent(max_depth=depth)
+    second_agent = RandomAgent()
+    if _ <= 500:
+        run_game(vector, minmax_agent, second_agent)
+    else:
+        run_game(vector, second_agent, minmax_agent)
+    scores_depth_15.append(sum(minmax_agent.numbers))
+
+visualize_distribution(scores_depth_2, depth)
