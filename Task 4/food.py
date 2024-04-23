@@ -1,6 +1,5 @@
 import random
 
-
 class Food:
     def __init__(self, block_size, bounds, lifetime=1e8):
         self.color = (150, 0, 0)
@@ -16,8 +15,8 @@ class Food:
 
     def respawn(self):
         self.time_left = self.lifetime
-        blocks_in_x = (self.bounds[0]) / self.block_size
-        blocks_in_y = (self.bounds[1]) / self.block_size
+        blocks_in_x = self.bounds[0] // self.block_size
+        blocks_in_y = self.bounds[1] // self.block_size
         self.x = random.randint(0, blocks_in_x - 1) * self.block_size
         self.y = random.randint(0, blocks_in_y - 1) * self.block_size
 
