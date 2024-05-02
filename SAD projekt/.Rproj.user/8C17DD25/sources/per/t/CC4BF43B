@@ -1,0 +1,28 @@
+{
+    "id": "CC4BF43B",
+    "path": null,
+    "project_path": null,
+    "type": "object_explorer",
+    "hash": "0",
+    "contents": "",
+    "dirty": false,
+    "created": 1714238781287.0,
+    "source_on_save": false,
+    "relative_order": 3,
+    "properties": {
+        "id": "4176dd268054448f940dae3c45139ea3",
+        "name": "datasets",
+        "title": "datasets",
+        "language": "R",
+        "source_window_id": "",
+        "Source": "Source"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 206158430255,
+    "encoding": "",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1714238781287,
+    "read_only": false,
+    "read_only_alternatives": []
+}
