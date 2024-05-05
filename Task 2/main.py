@@ -10,9 +10,7 @@ SIGMA = 0.1
 ITERATIONS = 200
 
 def f(x, y):
-    return -(9 * x * y) / np.exp(x ** 2 + 0.5 * x + y ** 2)
-def neg_f(x, y):
-    return -(9 * x * y) / np.exp(x ** 2 + 0.5 * x + y ** 2)
+    return (9 * x * y) / np.exp(x ** 2 + 0.5 * x + y ** 2)
 
 def evolution_es_min(f, MU: int, LAMBDA: int, SIGMA: float, ITERATIONS: int) -> Tuple[np.ndarray, float, list]:
     population = list()
@@ -130,7 +128,7 @@ def mutation(f, parent: Tuple[np.ndarray, np.ndarray]):
 # FIND MINIMUM
 # best_solution, best_fitness, population, f_history, x_history, y_history = evolution_es_min(f, MU, LAMBDA, SIGMA, ITERATIONS)
 # FIND MAXIMUM
-best_solution, best_fitness, population, f_history, x_history, y_history = evolution_es_max(neg_f, MU, LAMBDA, SIGMA, ITERATIONS)
+best_solution, best_fitness, population, f_history, x_history, y_history = evolution_es_max(f, MU, LAMBDA, SIGMA, ITERATIONS)
 
 print("Best solution:", best_solution)
 print("Objective function value at the best solution:", best_fitness)
