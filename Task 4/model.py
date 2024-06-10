@@ -4,47 +4,48 @@ import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 from sklearn.svm import SVC
+from enum import Enum
 
-def load_data(data_directory='data'):
-    all_data = []
-    labels = []
+# Definicja enuma Direction
+class Direction(Enum):
+    LEFT = 1
+    RIGHT = 2
+    UP = 3
+    DOWN = 4
 
-    # Przeglądanie folderu z danymi i odczyt wszystkich plików .pickle
-    for filename in os.listdir(data_directory):
-        if filename.endswith('.pickle'):
-            filepath = os.path.join(data_directory, filename)
-            with open(filepath, 'rb') as file:
-                data = pickle.load(file)
-                for game_state, action in data['data']:
-                    print(game_state)  # Sprawdzanie, czy zawiera 'bounds'
-                    features = game_state_to_data_sample(game_state)
-                    all_data.append(features)
-                    labels.append(action.value)  # Zakładając, że `action` to instancja Enum
+def load_data():
+    files = os.listdir('data')
+    data = []
+    for file in files:
+        with open(os.path.join('data', file), 'rb') as f:
+            data.extend(pickle.load(f)['data'])
 
-    return np.array(all_data), np.array(labels)
+    X = []
+    y = []
+    for game_state, direction in data:
+        X.append(game_state_to_data_sample(game_state))
+        y.append(direction.value)
 
+    return np.array(X), np.array(y)
 
-def game_state_to_data_sample(game_state: dict):
+def game_state_to_data_sample(game_state):
     snake_body = game_state['snake_body']
     food_position = game_state['food']
     snake_direction = game_state['snake_direction']
 
-    # Inicjalizacja wektora cech
     features = []
     head_x, head_y = snake_body[-1]
-    default_bounds = (300, 300)  #
+    default_bounds = (300, 300)
     bounds = game_state.get('bounds', default_bounds)
 
-    # Cechy dotyczące przeszkód
     obstacles = {
-        'left': any((head_x - 1, head_y) == segment for segment in snake_body) or head_x == 0,
-        'right': any((head_x + 1, head_y) == segment for segment in snake_body) or head_x == bounds[0] - 1,
-        'up': any((head_x, head_y - 1) == segment for segment in snake_body) or head_y == 0,
-        'down': any((head_x, head_y + 1) == segment for segment in snake_body) or head_y == bounds[1] - 1,
+        'left': any((head_x - 30, head_y) == segment for segment in snake_body) or head_x <= 0,
+        'right': any((head_x + 30, head_y) == segment for segment in snake_body) or head_x >= bounds[0] - 30,
+        'up': any((head_x, head_y - 30) == segment for segment in snake_body) or head_y <= 0,
+        'down': any((head_x, head_y + 30) == segment for segment in snake_body) or head_y >= bounds[1] - 30,
     }
     features.extend(obstacles.values())
 
-    # Cechy dotyczące lokalizacji jedzenia
     food_direction = {
         'food_left': food_position[0] < head_x,
         'food_right': food_position[0] > head_x,
@@ -53,7 +54,19 @@ def game_state_to_data_sample(game_state: dict):
     }
     features.extend(food_direction.values())
 
-    return features
+    direction_feature = [0, 0, 0, 0]
+    if snake_direction == Direction.UP:
+        direction_feature[0] = 1
+    elif snake_direction == Direction.RIGHT:
+        direction_feature[1] = 1
+    elif snake_direction == Direction.DOWN:
+        direction_feature[2] = 1
+    elif snake_direction == Direction.LEFT:
+        direction_feature[3] = 1
+
+    features.extend(direction_feature)
+
+    return np.array(features)
 
 class SVM:
     def __init__(self, C=1.0):
@@ -101,9 +114,8 @@ def train_and_evaluate_model(percentage, C):
 
     # Inicjalizacja i trenowanie modelu
     # model = SVM()
-    # model = SVM(C=C)
-    # model = SVC()
-    model = SVC(C=C)
+    model = SVM(C=C)
+
     model.fit(X_train, y_train)
 
     # Testowanie modelu za zbiorze testowym

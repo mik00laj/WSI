@@ -3,15 +3,16 @@ import os
 import pickle
 import pygame
 import time
+import numpy as np
 
 from food import Food
-from model import game_state_to_data_sample, SVM, load_data
 from snake import Snake, Direction
-from sklearn.svm import SVC
+from NaiveBayes import NaiveBayes, load_data, game_state_to_data_sample
 
 class HumanAgent:
     """ In every timestep every agent should perform an action (return direction) based on the game state. Please note, that
     human agent should be the only one using the keyboard and dumping data. """
+
     def __init__(self, block_size, bounds):
         self.block_size = block_size
         self.bounds = bounds
@@ -34,39 +35,27 @@ class HumanAgent:
 
     def dump_data(self):
         os.makedirs("data", exist_ok=True)
-        current_time = time.strftime('%Y-%m-%d-%H-%M-%S')
+        current_time = time.strftime('%Y-%m-%d_%H:%M:%S')
         with open(f"data/{current_time}.pickle", 'wb') as f:
             pickle.dump({"block_size": self.block_size,
                          "bounds": self.bounds,
-                         "data": self.data[:-10]}, f)  # Last 10 frames are when you press exit, so they are bad, skip them
-
+                         "data": self.data[:-10]},
+                        f)  # Last 10 frames are when you press exit, so they are bad, skip them
 
 class BehavioralCloningAgent:
     def __init__(self, model):
         self.model = model
 
+    def fit(self, X, y):
+        self.model.fit(X, y)
+
+    def predict(self, X):
+        return np.array([self.model.predict(x.reshape(1, -1))[0] for x in X])
+
     def act(self, game_state) -> Direction:
-        # Przekształcenie stanu gry na wektor cech
         data_sample = game_state_to_data_sample(game_state)
-        predicted_action = self.model.predict([data_sample])[0]
-
-        # Mapowanie przewidywanej akcji na kierunek węża
-        if predicted_action == Direction.LEFT.value:
-            return Direction.LEFT
-        elif predicted_action == Direction.RIGHT.value:
-            return Direction.RIGHT
-        elif predicted_action == Direction.UP.value:
-            return Direction.UP
-        elif predicted_action == Direction.DOWN.value:
-            return Direction.DOWN
-
-        # Domyślnie zwracamy kierunek w dół, jeśli coś pójdzie nie tak
-        return Direction.DOWN
-
-    def dump_data(self):
-        # Metoda nie jest potrzebna dla tego agenta, ale jest zaimplementowana, aby zachować spójność.
-        pass
-
+        prediction = self.model.predict([data_sample])[0]
+        return Direction(prediction)
 
 def main():
     pygame.init()
@@ -78,17 +67,11 @@ def main():
     snake = Snake(block_size, bounds)
     food = Food(block_size, bounds, lifetime=100)
 
-    # Wczytywanie danych i trenowanie modelu SVM
+    # Load trained model
     X, y = load_data()
-    # model = SVM()
-    # model = SVM(C=1)
-    model = SVC()
-    # model = SVC(C=1)
-    # model = HumanAgent(block_size, bounds)
-    model.fit(X, y)
-
-    # Użycie agenta opartego na modelu
+    model = NaiveBayes()
     agent = BehavioralCloningAgent(model)
+    agent.fit(X, y)
 
     scores = []
     games = 0
